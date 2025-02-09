@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Quiz Results</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 20px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+        }
+
+        /* Bootstrap Green Header */
+        thead th {
+            background-color: #28a745 !important; /* Bootstrap Green */
+            color: white !important; /* White text for contrast */
+            font-size: 16px;
+            text-transform: uppercase;
+            padding: 12px;
+            text-align: center;
+        }
+
+        th, td {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h3 class="text-center mb-4">Quiz Results</h3>
+        
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Candidate</th>
+                    <th>Score</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="result-list"></tbody>
+        </table>
+
+        <button onclick="window.location.href='admin.html'" class="btn btn-secondary mt-3">
+            Back to Admin Panel
+        </button>
+    </div>
+
+    <script>
+        async function fetchResults() {
+            const response = await fetch('http://localhost:5000/results');
+            const results = await response.json();
+
+            console.log("Fetched results:", results);  // Debugging log
+
+            document.getElementById('result-list').innerHTML = results.map(r => 
+                `<tr>
+                    <td>${r.username || 'Unknown'}</td>  
+                    <td>${r.score} / ${r.total}</td>
+                    <td><button class="btn btn-danger btn-sm" onclick="deleteResult(${r.id})">Delete</button></td>
+                </tr>`).join('');
+        }
+
+        async function deleteResult(id) {
+            await fetch(`http://localhost:5000/delete-result/${id}`, { method: 'DELETE' });
+            Swal.fire("Deleted!", "Result removed!", "success");
+            fetchResults();
+        }
+
+        fetchResults();
+    </script>
+
+</body>
+</html>

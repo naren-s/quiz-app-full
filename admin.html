@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Admin Panel - Quiz</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+        }
+        .admin-container {
+            width: 550px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .form-control {
+            font-size: 16px;
+            padding: 12px;
+        }
+        .btn {
+            font-size: 16px;
+            padding: 12px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="admin-container">
+        <h3 class="text-center mb-3">Admin Panel</h3>
+
+        <!-- 📌 Add Quiz Questions -->
+        <div class="card shadow-sm mb-3 p-3">
+            <h5>Add Question</h5>
+            <input type="text" id="question" class="form-control mb-2" placeholder="Enter Question">
+            <input type="text" id="options" class="form-control mb-2" placeholder="Comma-separated options">
+            <input type="text" id="answer" class="form-control mb-2" placeholder="Correct Answer">
+            <button onclick="addQuestion()" class="btn btn-success">Add Question</button>
+        </div>
+
+        <!-- 📌 Add Candidates -->
+        <div class="card shadow-sm mb-3 p-3">
+            <h5>Add Candidate</h5>
+            <input type="text" id="username" class="form-control mb-2" placeholder="Username">
+            <input type="password" id="password" class="form-control mb-2" placeholder="Password">
+            <button onclick="addCandidate()" class="btn btn-primary">Add Candidate</button>
+        </div>
+
+        <!-- 📌 Navigation Buttons -->
+        <button onclick="window.location.href='candidates.html'" class="btn btn-info mt-2">
+            View All Candidates
+        </button>
+        <button onclick="window.location.href='results.html'" class="btn btn-warning mt-2">
+            View Quiz Results
+        </button>
+    </div>
+
+    <script>
+        async function addQuestion() {
+            const question = document.getElementById('question').value;
+            const options = document.getElementById('options').value.split(",");
+            const answer = document.getElementById('answer').value;
+
+            if (!question || options.length < 2 || !answer) {
+                Swal.fire("Error!", "Fill all fields!", "error");
+                return;
+            }
+
+            await fetch('http://localhost:5000/add-question', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question, options, answer })
+            });
+
+            Swal.fire("Success!", "Question added!", "success");
+            document.getElementById('question').value = "";
+            document.getElementById('options').value = "";
+            document.getElementById('answer').value = "";
+        }
+
+        async function addCandidate() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            if (!username || !password) {
+                Swal.fire("Error!", "Username & Password required!", "error");
+                return;
+            }
+
+            const response = await fetch('http://localhost:5000/add-candidate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (response.ok) {
+                Swal.fire("Success!", "Candidate added!", "success");
+                document.getElementById("username").value = "";
+                document.getElementById("password").value = "";
+            }
+        }
+    </script>
+
+</body>
+</html>

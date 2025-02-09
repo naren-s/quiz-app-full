@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- SweetAlert for notifications -->
+    <style>
+        body {
+            background-color: #f8f9fa;
+            text-align: center;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+        }
+        .quiz-container {
+            max-width: 600px;
+            margin: auto;
+            margin-top: 50px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px #aaa;
+        }
+        .option {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 18px;
+            font-weight: bold;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+        }
+        .option:hover {
+            background-color: #ddd;
+        }
+        .correct {
+            background-color: #28a745 !important;
+            color: white;
+        }
+        .wrong {
+            background-color: #dc3545 !important;
+            color: white;
+        }
+        .timer-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .timer {
+            font-size: 20px;
+            font-weight: bold;
+            color: red;
+            animation: pulse 1s infinite alternate;
+        }
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+        .next-btn {
+            display: block;  /* Centers the button */
+            margin: 30px auto;  /* Adds space below */
+            background: #007bff;
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 5px;
+            font-size: 18px;
+            transition: 0.3s;
+        }
+        .next-btn:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container">
+        <h2>Quiz</h2>
+        <div class="timer-container">
+            <p class="timer" id="timer"></p>
+        </div>
+        <div id="question-container"></div>
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next</button>
+    </div>
+
+    <script>
+
+        // Prevent Back and Forward Navigation
+        window.history.pushState(null, null, window.location.href);
+        window.onpopstate = function () {
+            window.history.pushState(null, null, window.location.href);
+        };
+
+        // Prevent users from reloading quiz after logout
+        window.onload = function () {
+            const username = localStorage.getItem("username");
+
+            if (!username) {
+                // Clear browser history and redirect to login
+                window.location.href = "login.html";
+            } else {
+                // Clear forward history so user can't go forward after logout
+                window.history.replaceState(null, null, window.location.href);
+            }
+        };
+
+
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let selectedAnswers = {};
+        let timeLeft = 1800;
+        let timerInterval;
+
+        async function loadQuestions() {
+            const response = await fetch('http://localhost:5000/questions');
+            questions = await response.json();
+            showQuestion();
+            startTimer();
+        }
+
+        function showQuestion() {
+            if (currentQuestionIndex >= questions.length) {
+                submitQuiz();
+                return;
+            }
+
+            const questionData = questions[currentQuestionIndex];
+            document.getElementById('question-container').innerHTML = 
+                `<h5>${questionData.question}</h5>
+                ${questionData.options.map((opt, i) => 
+                    `<div class="option" data-question-id="${questionData.id}" onclick="selectAnswer('${questionData.id}', '${opt}', '${questionData.answer}', this)">
+                        ${opt}
+                    </div>`).join('')}`;
+        }
+
+        function selectAnswer(questionId, answer, correctAnswer, element) {
+            if (selectedAnswers[questionId]) return; // Prevent multiple selections
+
+            let normalizedAnswer = answer.trim().toLowerCase();
+            let normalizedCorrectAnswer = String(correctAnswer).trim().toLowerCase();
+
+            selectedAnswers[questionId] = normalizedAnswer;
+
+            document.querySelectorAll(".option").forEach(opt => opt.style.pointerEvents = "none");
+
+            if (normalizedAnswer === normalizedCorrectAnswer) {
+                element.classList.add("correct");
+            } else {
+                element.classList.add("wrong");
+            }
+        }
+
+        function nextQuestion() {
+            const currentQuestion = questions[currentQuestionIndex];
+
+            if (!selectedAnswers[currentQuestion.id]) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Select an Answer!',
+                    text: 'You must choose an answer before proceeding!',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                return;
+            }
+
+            currentQuestionIndex++;
+            showQuestion();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    submitQuiz();
+                }
+                document.getElementById('timer').innerText = `⏳ ${Math.floor(timeLeft / 60)}m ${timeLeft % 60}s`;
+                timeLeft--;
+            }, 1000);
+        }
+
+        async function submitQuiz() {
+            const username = localStorage.getItem("username");
+            if (!username) {
+                Swal.fire("Error", "User not logged in!", "error");
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:5000/submit-quiz', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, answers: selectedAnswers })
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    Swal.fire({
+                        title: "Quiz Finished!",
+                        text: `You scored ${result.score} out of ${result.total}`,
+                        icon: "success"
+                    }).then(() => {
+                        localStorage.removeItem("username");
+                        window.location.href = "login.html";
+                    });
+                } else {
+                    Swal.fire("Error", result.message, "error");
+                }
+            } catch (error) {
+                Swal.fire("Error", "Failed to submit quiz.", "error");
+            }
+        }
+
+        loadQuestions();
+    </script>
+
+</body>
+</html>

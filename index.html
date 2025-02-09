@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Quiz App</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        /* Bone White & Ivory Background */
+        body, html {
+            background: linear-gradient(to right, #f2ede6, #f8f5f1);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Montserrat', sans-serif;
+            text-align: center;
+            overflow: hidden; /* Prevents content from shifting */
+        }
+
+        /* Fixed Position Card */
+        .container-box {
+            width: 420px;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 2px 4px 15px rgba(0, 0, 0, 0.1);
+            position: fixed; /* Fixes the card in place */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        /* Hover Effect */
+        .container-box:hover {
+            transform: translate(-50%, -50%) scale(1.02);
+        }
+
+        /* Stylish Buttons */
+        .btn {
+            font-size: 18px;
+            padding: 12px;
+            width: 100%;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #ff6b6b; /* Coral Red */
+            color: white;
+            border: none;
+        }
+        .btn-primary:hover {
+            background: #e63946;
+        }
+
+        .btn-warning {
+            background: #f4a261; /* Warm Orange */
+            color: white;
+            border: none;
+        }
+        .btn-warning:hover {
+            background: #e76f51;
+        }
+
+        /* Fix SweetAlert Background Blur */
+        .swal2-container {
+            position: fixed !important;
+            backdrop-filter: blur(4px); /* Adds slight blur to the background */
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container-box">
+        <h2 class="mb-3">🎯 Welcome to Quiz App</h2>
+        <p>Test your knowledge and challenge yourself!</p>
+        <button onclick="location.href='login.html'" class="btn btn-primary">🚀 Start Quiz</button>
+        <button onclick="showInstructions()" class="btn btn-warning">📖 Instructions</button>
+    </div>
+
+    <script>
+        function showInstructions() {
+            Swal.fire({
+                title: "📌 Quiz Instructions",
+                html: "<b>1.</b> Answer each question carefully.<br><b>2.</b> You have limited time.<br><b>3.</b> Choose the best answer and proceed!",
+                icon: "info",
+                confirmButtonText: "Got it!",
+                allowOutsideClick: false,  // Prevents accidental closing
+                backdrop: true,  // Keeps focus on modal
+            });
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>All Candidates</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 20px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+        }
+        .container {
+            max-width: 700px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h3 class="text-center mb-3">All Candidates</h3>
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="candidate-list"></tbody>
+        </table>
+
+        <button onclick="window.location.href='admin.html'" class="btn btn-secondary mt-3">
+            Back to Admin Panel
+        </button>
+    </div>
+
+    <script>
+        async function loadCandidates() {
+            try {
+                const response = await fetch('http://localhost:5000/candidates');
+                if (!response.ok) {
+                    throw new Error("Failed to fetch candidates.");
+                }
+                const candidates = await response.json();
+                document.getElementById("candidate-list").innerHTML = candidates.map(c =>
+                    `<tr>
+                        <td>${c.id}</td>
+                        <td>${c.username}</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm" onclick="deleteCandidate(${c.id})">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>`
+                ).join('');
+            } catch (error) {
+                console.error("Error loading candidates:", error);
+                Swal.fire("Error", "Failed to load candidates.", "error");
+            }
+        }
+
+        async function deleteCandidate(id) {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Yes, delete it!"
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch(`http://localhost:5000/delete-candidate/${id}`, {
+                            method: "DELETE"
+                        });
+
+                        if (!response.ok) {
+                            throw new Error("Failed to delete candidate.");
+                        }
+
+                        Swal.fire("Deleted!", "Candidate has been removed.", "success");
+                        loadCandidates(); // Refresh the table
+                    } catch (error) {
+                        console.error("Error deleting candidate:", error);
+                        Swal.fire("Error", "Failed to delete candidate.", "error");
+                    }
+                }
+            });
+        }
+
+        loadCandidates();
+    </script>
+
+</body>
+</html>
