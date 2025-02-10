@@ -195,5 +195,28 @@ app.delete('/delete-result/:id', async (req, res) => {
     }
 });
 
+// 📌 Admin Login
+app.post('/admin-login', async (req, res) => {
+    const { username, password } = req.body;
+    try {
+        const admin = await pool.query('SELECT * FROM admins WHERE username = $1', [username]);
+
+        if (!admin.rows.length) return res.status(400).json({ message: "Invalid username or password" });
+
+        const validPassword = await bcrypt.compare(password, admin.rows[0].password);
+        if (!validPassword) return res.status(400).json({ message: "Invalid username or password" });
+
+        res.json({ message: "Login successful", username });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// 📌 Admin Logout (Optional)
+app.post('/admin-logout', (req, res) => {
+    res.json({ message: "Logout successful" });
+});
+
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

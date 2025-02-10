@@ -38,6 +38,7 @@
             width: 100%;
         }
     </style>
+
 </head>
 <body>
 
@@ -68,6 +69,23 @@
         <button onclick="window.location.href='results.html'" class="btn btn-warning mt-2">
             View Quiz Results
         </button>
+
+        <!-- 🚪 Logout Button (NEW) -->
+        <button onclick="adminLogout()" class="btn btn-danger mt-2">🚪 Logout</button>
+    </div>
+
+    <script>
+        function adminLogout() {
+            localStorage.removeItem("admin"); // Remove session
+            window.location.href = "admin-login.html";
+        }
+
+        // Prevent unauthorized access
+        if (!localStorage.getItem("admin")) {
+            window.location.href = "admin-login.html";
+        }
+    </script>
+    
     </div>
 
     <script>
