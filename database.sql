@@ -4,6 +4,12 @@ CREATE TABLE candidates (
     password TEXT NOT NULL
 );
 
+CREATE TABLE admins (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(255) UNIQUE NOT NULL,
+    password TEXT NOT NULL
+);
+
 CREATE TABLE questions (
     id SERIAL PRIMARY KEY,
     question TEXT NOT NULL,
