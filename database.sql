@@ -10,6 +10,8 @@ CREATE TABLE admins (
     password TEXT NOT NULL
 );
 
+INSERT INTO admins (username, password) VALUES ('admin', '$2b$10$CgsSbkZbIk4LRa.EYS1uv.eWparb1L4XJyZyVUsb3UyPbpQk2i6T2');
+
 CREATE TABLE questions (
     id SERIAL PRIMARY KEY,
     question TEXT NOT NULL,
