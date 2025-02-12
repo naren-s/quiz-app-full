@@ -10,98 +10,135 @@
         body {
             background-color: #f8f9fa;
             height: 100vh;
-            overflow: hidden;
             display: flex;
-            justify-content: center;
-            align-items: center;
             font-family: 'Montserrat', sans-serif;
             font-weight: 500;
-            position: relative;
         }
 
-        .admin-container {
-            width: 700px; /* Increased Width */
+        /* ✅ Sidebar (Left Panel) */
+        .sidebar {
+            width: 250px;
+            background: #343a40;
+            color: white;
             padding: 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100vh;
+        }
+
+        .sidebar h3 {
             text-align: center;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            margin-bottom: 20px;
+        }
+
+        .sidebar button {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
+            color: #fff;
+        }
+
+        /* ✅ Main Content (Right Panel) */
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 600px;  /* Increased from 500px to 600px */
+            padding: 20px;  /* Increased padding for better spacing */
+            margin-bottom: 20px;
         }
 
 
         .form-control {
-            font-size: 16px;
-            padding: 12px;
-        }
-
-        .btn {
-            font-size: 14px; /* Made text smaller */
-            padding: 8px 20px; /* Reduced padding */
-            width: auto; /* Auto width, no stretching */
-            display: block; /* Ensures proper placement */
-            margin: 10px auto; /* Centers buttons */
-        }
-
-
-        /* 🔹 Fixed Logout Button */
-        .logout-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            padding: 6px 14px;
             font-size: 14px;
-            border-radius: 50px;
-            display: inline-block;
-            width: auto; /* Ensures it does not stretch */
+            padding: 8px;
+        }
+
+        .btn-small {
+            font-size: 14px;
+            padding: 8px 15px;
+            width: auto;
+            display: block;
+            margin: 10px auto;
+        }
+
+        /* ✅ Responsive */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                text-align: center;
+            }
+
+            .content {
+                padding: 10px;
+            }
         }
     </style>
-
 </head>
+
 <body>
 
-    <!-- 🚪 Logout Button (Properly Positioned) -->
-    <button onclick="adminLogout()" class="btn btn-danger logout-btn">Logout 🚪</button>
+    <!-- 🚀 Sidebar (Navigation) -->
+    <div class="sidebar">
+        <div>
+            <h3>Admin Panel</h3>
+            <button onclick="window.location.href='candidates.html'" class="btn btn-info">View Candidates</button>
+            <button onclick="window.location.href='results.html'" class="btn btn-warning">View Quiz Results</button>
+        </div>
+        <button onclick="adminLogout()" class="btn logout-btn">Logout 🚪</button>
+    </div>
 
-    <div class="admin-container">
-        <h3 class="text-center mb-3">Admin Panel</h3>
+    <!-- 📌 Main Content -->
+    <div class="content">
 
-        <!-- 📌 Add Quiz Questions -->
-        <div class="card shadow-sm mb-3 p-3">
+        <!-- ✅ Add Quiz Question -->
+        <div class="card shadow-sm">
             <h5>Add Question</h5>
             <input type="text" id="question" class="form-control mb-2" placeholder="Enter Question">
             <input type="text" id="options" class="form-control mb-2" placeholder="Comma-separated options">
             <input type="text" id="answer" class="form-control mb-2" placeholder="Correct Answer">
-            <button onclick="addQuestion()" class="btn btn-success">Add Question</button>
+            <button onclick="addQuestion()" class="btn btn-success btn-small">Add Question</button>
         </div>
 
-        <!-- 📌 Add Candidates -->
-        <div class="card shadow-sm mb-3 p-3">
+        <!-- ✅ Add Candidate -->
+        <div class="card shadow-sm">
             <h5>Add Candidate</h5>
             <input type="text" id="username" class="form-control mb-2" placeholder="Username">
             <input type="password" id="password" class="form-control mb-2" placeholder="Password">
-            <button onclick="addCandidate()" class="btn btn-primary">Add Candidate</button>
+            <button onclick="addCandidate()" class="btn btn-primary btn-small">Add Candidate</button>
         </div>
 
-        <!-- 📌 Navigation Buttons -->
-        <button onclick="window.location.href='candidates.html'" class="btn btn-info mt-2">
-            View All Candidates
-        </button>
-        <button onclick="window.location.href='results.html'" class="btn btn-warning mt-2">
-            View Quiz Results
-        </button>
     </div>
 
     <script>
         function adminLogout() {
-            localStorage.removeItem("admin"); // Remove session
+            localStorage.removeItem("admin");
             window.location.href = "admin-login.html";
         }
 
-        // Prevent unauthorized access
         if (!localStorage.getItem("admin")) {
             window.location.href = "admin-login.html";
         }

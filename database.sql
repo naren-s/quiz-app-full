@@ -1,5 +1,5 @@
 CREATE TABLE candidates (
-    id SERIAL PRIMARY KEY,
+    id VARCHAR(5) PRIMARY KEY,  -- 5-digit unique ID as a string
     username VARCHAR(50) UNIQUE NOT NULL,
     password TEXT NOT NULL
 );
@@ -21,8 +21,9 @@ CREATE TABLE questions (
 
 CREATE TABLE results (
     id SERIAL PRIMARY KEY,
-    username VARCHAR(50) REFERENCES candidates(username) ON DELETE CASCADE,
+    candidate_id VARCHAR(5) REFERENCES candidates(id) ON DELETE CASCADE,  -- Ensures cascade delete
     score INT NOT NULL,
     total INT NOT NULL,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+

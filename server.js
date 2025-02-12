@@ -18,17 +18,36 @@ const pool = new Pool({
 });
 
 
+// Function to generate a unique 5-digit ID
+const generateUniqueId = async () => {
+    let id;
+    let exists = true;
+
+    while (exists) {
+        id = Math.floor(10000 + Math.random() * 90000).toString(); // Generate a 5-digit number
+        const result = await pool.query('SELECT id FROM candidates WHERE id = $1', [id]);
+        if (result.rows.length === 0) exists = false; // Ensure it's unique
+    }
+
+    return id;
+};
+
 // 📌 Admin: Add a Candidate (Signup)
 app.post('/add-candidate', async (req, res) => {
     const { username, password } = req.body;
     try {
+        const id = await generateUniqueId(); // Generate a unique 5-digit ID
         const hashedPassword = await bcrypt.hash(password, 10);
-        await pool.query('INSERT INTO candidates (username, password) VALUES ($1, $2)', [username, hashedPassword]);
-        res.status(201).json({ message: "Candidate added successfully" });
+
+        await pool.query('INSERT INTO candidates (id, username, password) VALUES ($1, $2, $3)', 
+            [id, username, hashedPassword]);
+
+        res.status(201).json({ message: "Candidate added successfully", id });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
+
 
 // 📌 Candidate Login
 app.post('/login', async (req, res) => {
